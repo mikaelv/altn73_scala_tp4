@@ -118,17 +118,16 @@ class SalesAnalysisSpec extends AnyFlatSpec with Matchers {
   "cityStats" should "calculate count and revenue per city" in {
     val result = cityStats(sales)
     
-    // Paris: 5 ventes
-    result("Paris")._1 shouldEqual 5
+    // Calculs précis des revenus par ville
+    val parisRevenue = 2 * 999.99 + 1 * 999.99 + 2 * 79.99 + 3 * 29.99 + 2 * 49.99
+    val lyonRevenue = 5 * 29.99 + 4 * 199.99 + 1 * 999.99
+    val marseilleRevenue = 3 * 299.99
+    val bordeauxRevenue = 1 * 399.99
     
-    // Lyon: 3 ventes
-    result("Lyon")._1 shouldEqual 3
-    
-    // Vérifier que le revenu est positif pour chaque ville
-    result.values.foreach { case (count, revenue) =>
-      count should be > 0
-      revenue should be > 0.0
-    }
+    result("Paris") shouldEqual (5, parisRevenue) 
+    result("Lyon") shouldEqual (3, lyonRevenue)
+    result("Marseille") shouldEqual (1, marseilleRevenue)
+    result("Bordeaux") shouldEqual (1, bordeauxRevenue)
   }
 
   "productsByCategory" should "group products by category" in {
@@ -140,41 +139,45 @@ class SalesAnalysisSpec extends AnyFlatSpec with Matchers {
   "salesAnalysisByCategory" should "calculate quantity and revenue per category" in {
     val result = salesAnalysisByCategory(sales)
     
-    result should contain key "Electronics"
-    result should contain key "Furniture"
+    // Electronics: Laptop(2+1+1=4), Mouse(5+3=8), Keyboard(2), Monitor(1) = 15 unités
+    val electronicsQuantity = 4 + 8 + 2 + 1
+    val electronicsRevenue = 4 * 999.99 + 8 * 29.99 + 2 * 79.99 + 1 * 399.99
     
-    // Vérifier que les valeurs sont positives
-    result.values.foreach { case (quantity, revenue) =>
-      quantity should be > 0
-      revenue should be > 0.0
-    }
+    // Furniture: Desk(3), Chair(4), Lamp(2) = 9 unités  
+    val furnitureQuantity = 3 + 4 + 2
+    val furnitureRevenue = 3 * 299.99 + 4 * 199.99 + 2 * 49.99
+    
+    result("Electronics") shouldEqual (electronicsQuantity, electronicsRevenue)
+    result("Furniture") shouldEqual (furnitureQuantity, furnitureRevenue)
   }
 
   "top3CitiesByRevenue" should "return top 3 cities by revenue in descending order" in {
     val result = top3CitiesByRevenue(sales)
-    result should have size 3
     
-    // Vérifier l'ordre décroissant
-    result(0)._2 should be >= result(1)._2
-    result(1)._2 should be >= result(2)._2
+    val parisRevenue = 2 * 999.99 + 1 * 999.99 + 2 * 79.99 + 3 * 29.99 + 2 * 49.99
+    val lyonRevenue = 5 * 29.99 + 4 * 199.99 + 1 * 999.99
+    val marseilleRevenue = 3 * 299.99
     
-    // Toutes les villes doivent avoir un revenu positif
-    result.foreach { case (city, revenue) =>
-      city should not be empty
-      revenue should be > 0.0
-    }
+    // Paris devrait être premier, puis Lyon, puis Marseille
+    result should contain theSameElementsInOrderAs List(
+      ("Paris", parisRevenue),
+      ("Lyon", lyonRevenue), 
+      ("Marseille", marseilleRevenue)
+    )
   }
 
   "averageOrderValueByCity" should "calculate average order value per city" in {
     val result = averageOrderValueByCity(sales)
     
-    result should contain key "Paris"
-    result should contain key "Lyon" 
-    result should contain key "Marseille"
-    result should contain key "Bordeaux"
+    val parisRevenue = 2 * 999.99 + 1 * 999.99 + 2 * 79.99 + 3 * 29.99 + 2 * 49.99
+    val lyonRevenue = 5 * 29.99 + 4 * 199.99 + 1 * 999.99
+    val marseilleRevenue = 3 * 299.99
+    val bordeauxRevenue = 1 * 399.99
     
-    // Toutes les valeurs moyennes doivent être positives
-    result.values.foreach(_ should be > 0.0)
+    result("Paris") shouldEqual parisRevenue / 5 +- 0.01
+    result("Lyon") shouldEqual lyonRevenue / 3 +- 0.01
+    result("Marseille") shouldEqual marseilleRevenue / 1 +- 0.01
+    result("Bordeaux") shouldEqual bordeauxRevenue / 1 +- 0.01
   }
 
   "mostSoldProduct" should "return the product with highest total quantity sold" in {
@@ -182,8 +185,6 @@ class SalesAnalysisSpec extends AnyFlatSpec with Matchers {
     result should be(defined)
     
     val (product, quantity) = result.get
-    quantity should be > 0
-    
     // Mouse est vendu en quantité 5+3=8, Laptop en 2+1+1=4
     // Mouse devrait être le plus vendu
     product shouldEqual mouse
