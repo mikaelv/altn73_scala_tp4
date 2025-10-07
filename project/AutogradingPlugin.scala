@@ -18,12 +18,9 @@ object AutogradingPlugin extends AutoPlugin {
 
   override lazy val projectSettings = Seq(
     autograding := {
-      val log = streams.value.log
-      
-      log.info("Running tests for autograding...")
-      
-      Try((Test / test).value)
-      
+      // Run tests and capture result without failing this task
+      (Test / test).result.value
+      streams.value.log.info("Tests completed, generating autograding.json...")
       generateAutograding.value
     },
     
