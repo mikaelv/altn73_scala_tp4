@@ -18,17 +18,13 @@ object AutogradingPlugin extends AutoPlugin {
 
   override lazy val projectSettings = Seq(
     autograding := {
-      // Run tests and capture result without failing this task
-      (Test / test).result.value
-      streams.value.log.info("Tests completed, generating autograding.json...")
-      generateAutograding.value
-    },
-    
-    generateAutograding := {
       val log = streams.value.log
       
-      log.info("Processing test results...")
+      // Run tests first and capture result without failing this task
+      (Test / test).result.value
+      log.info("Tests completed, generating autograding.json...")
       
+      // Now process the test results
       val testEvents = ListBuffer[(String, Boolean)]()
       val testReportsDir = file("target/test-reports")
       
@@ -73,6 +69,10 @@ object AutogradingPlugin extends AutoPlugin {
       } finally {
         writer.close()
       }
+    },
+    
+    generateAutograding := {
+      streams.value.log.info("Use 'sbt autograding' instead")
     },
     
     Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-u", (Test / target).value + "/test-reports")
