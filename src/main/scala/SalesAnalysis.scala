@@ -58,13 +58,13 @@ object SalesAnalysis:
   // Retourner une liste avec seulement les noms des produits
   // Astuce : Maintenant plus simple sans jointure !
   def allProductNames(products: Seq[Product]): Seq[String] =
-    products.map(_.name)
+    ???
 
   // EXERCICE 2 : Produits chers
   // Trouver tous les produits qui coûtent plus de 100€
   // Astuce : Utilisez la méthode isExpensive
   def expensiveProducts(products: Seq[Product]): Seq[Product] =
-    products.filter(_.isExpensive)
+    ???
 
   // EXERCICE 3 : Nombre total de ventes
   // Calculer combien de ventes ont été réalisées au total
