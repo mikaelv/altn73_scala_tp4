@@ -14,11 +14,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup SBT
-      uses: olafurpg/setup-scala@v14
-      with:
-        java-version: '17'
-
     - name: Cache SBT
       uses: actions/cache@v3
       with:
@@ -29,6 +24,11 @@ jobs:
         key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt', 'project/build.properties') }}
         restore-keys: |
           ${{ runner.os }}-sbt-
+
+    - name: Setup SBT
+      uses: olafurpg/setup-scala@v14
+      with:
+        java-version: '17'
 
     - name: Run tests and generate autograding
       run: sbt autograding
